@@ -1,5 +1,9 @@
 import Globe from "react-globe.gl";
 
+import globeJson from "./assets/countries_110m.json";
+
+import { Plane } from "lucide-react";
+
 import {
   Card,
   CardHeader,
@@ -8,15 +12,16 @@ import {
   CardAction,
   CardContent,
   CardFooter,
-} from "@/components/ui/card.jsx";
+} from "./components/ui/card.jsx";
 
-import globeJson from "./assets/countries_110m.json";
+import { Input } from "./components/ui/input.jsx";
+import { Button } from "./components/ui/button";
 
 function App() {
   const myData = [
     {
-      lat: 29.953204744601763,
-      lng: -90.08925929478903,
+      lat: -33.947346,
+      lng: 151.179428,
       altitude: 0.4,
       color: "#ff2c2c",
     },
@@ -25,11 +30,19 @@ function App() {
     <div className="fixed">
       <div className="relative">
         <div className="absolute z-10 mt-4 ml-4">
-          <Card className="w-96 h-[calc(100vh-2rem)]">
+          <Card className="w-104 h-[calc(100vh-2rem)]">
+            <div className="flex justify-center">
+              <p className="font-bold text-lg">Flight Tracker</p>
+            </div>
             <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
+              <CardTitle>
+                <Input placeholder="Enter Flight Number" />
+              </CardTitle>
+              <CardAction>
+                <Button variant="outline" size="icon">
+                  <Plane />
+                </Button>
+              </CardAction>
             </CardHeader>
             <CardContent>
               <p>Card Content</p>
