@@ -5,7 +5,13 @@ import { useQuery } from "@tanstack/react-query";
 
 import globeJson from "./assets/countries_110m.json";
 
-import { Plane } from "lucide-react";
+import {
+  Plane,
+  ArrowUpRight,
+  Briefcase,
+  PlaneLanding,
+  PlaneTakeoff,
+} from "lucide-react";
 
 import {
   Card,
@@ -19,6 +25,7 @@ import {
 
 import { Input } from "./components/ui/input.jsx";
 import { Button } from "./components/ui/button";
+import { Badge } from "./components/ui/badge";
 
 const apiKey = import.meta.env.VITE_AVIATION_STACK_API_KEY;
 
@@ -189,7 +196,7 @@ function App() {
     <div className="fixed">
       <div className="relative">
         <div className="absolute z-10 mt-4 ml-4">
-          <Card className="w-104 h-[calc(100vh-2rem)]">
+          <Card className="w-136 h-[calc(100vh-2rem)]">
             <div className="flex justify-center">
               <p className="font-bold text-lg">Flight Tracker</p>
             </div>
@@ -214,10 +221,62 @@ function App() {
               {data && (
                 <div>
                   <p className="font-semibold mb-2">Flight Data:</p>
-                  <p>{JSON.stringify(data, null, 2)}</p>
+                  <pre>{JSON.stringify(data, null, 2)}</pre>
                 </div>
               )}
-              <p>{flight_data.data[0].flight_date}</p>
+              <div className="flex justify-between items-center mx-2">
+                <p className="font-bold text-2xl">
+                  {flight_data.data[0].flight.iata}
+                </p>
+                <div className="flex items-center">
+                  <p className="text-sm text-gray-400 mr-2 whitespace-nowrap">
+                    Status:
+                  </p>
+                  <Badge className="flex">
+                    {flight_data.data[0].flight_status}
+                  </Badge>
+                </div>
+              </div>
+              <p className="ml-2 text-md text-gray-400">
+                {flight_data.data[0].airline.name}
+              </p>
+              <div className="flex items-center justify-between mt-2">
+                <div className="rounded-lg border-2 border-slate-500 w-48 p-2">
+                  <div className="flex gap-1">
+                    <PlaneTakeoff />
+                    <p className="font-bold text-lg">
+                      {flight_data.data[0].departure.iata}
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Terminal {flight_data.data[0].departure.terminal}
+                  </p>
+                  <Badge className="bg-yellow-400">
+                    <ArrowUpRight />
+                    {flight_data.data[0].departure.gate}
+                  </Badge>
+                </div>
+                <Plane className="rotate-45" />
+                <div className="rounded-lg border-2 border-slate-500 w-48 p-2">
+                  <div className="flex gap-1">
+                    <PlaneLanding />
+                    <p className="font-bold text-lg">
+                      {flight_data.data[0].arrival.iata}
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Terminal {flight_data.data[0].arrival.terminal}
+                  </p>
+                  <Badge className="bg-yellow-400">
+                    <Briefcase />
+                    {flight_data.data[0].arrival.baggage}
+                  </Badge>
+                  <Badge className="bg-yellow-400">
+                    <ArrowUpRight />
+                    {flight_data.data[0].arrival.gate}
+                  </Badge>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
