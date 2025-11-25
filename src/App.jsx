@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import Globe from "react-globe.gl";
 import { useQuery } from "@tanstack/react-query";
 
 import globeJson from "./assets/countries_110m.json";
+
+import { getAirportByIata } from "airport-data-js";
 
 import {
   Plane,
@@ -30,32 +32,6 @@ import { Badge } from "./components/ui/badge";
 const apiKey = import.meta.env.VITE_AVIATION_STACK_API_KEY;
 
 function App() {
-  const arcData = [
-    {
-      startLat: -33.947346,
-      startLng: 151.179428,
-      endLat: 28.621322361013092,
-      endLng: 77.20347613099612,
-      color: "#0018f9",
-      stroke: 1,
-      scale: 0.3,
-    },
-  ];
-  const myData = [
-    {
-      lat: -33.947346,
-      lng: 151.179428,
-      altitude: 0.4,
-      color: "#ff2c2c",
-    },
-    {
-      lat: 28.621322361013092,
-      lng: 77.20347613099612,
-      altitude: 0.4,
-      color: "#00bf00",
-    },
-  ];
-
   const flight_data = {
     pagination: {
       limit: 100,
@@ -170,6 +146,50 @@ function App() {
   };
 
   const [flightNumber, setFlightNumber] = useState("");
+  const [departureAirport, setDepartureAirport] = useState(null);
+  const [arrivalAirport, setArrivalAirport] = useState(null);
+
+  const globeEl = useRef();
+
+  const arcData =
+    departureAirport && arrivalAirport
+      ? [
+          {
+            startLat: departureAirport.latitude,
+            startLng: departureAirport.longitude,
+            endLat: arrivalAirport.latitude,
+            endLng: arrivalAirport.longitude,
+            color: "#0018f9",
+            stroke: 1,
+            scale: 0.3,
+          },
+        ]
+      : [];
+
+  async function fetchAirportCoordinates() {
+    const departureIata = flight_data.data[0].departure.iata;
+    const [departure] = await getAirportByIata(departureIata);
+
+    const arrivalIata = flight_data.data[0].arrival.iata;
+    const [arrival] = await getAirportByIata(arrivalIata);
+
+    setDepartureAirport(departure);
+    setArrivalAirport(arrival);
+
+    const midLat = (departure.latitude + arrival.latitude) / 2;
+    const midLng = (departure.longitude + arrival.longitude) / 2;
+
+    const duration = 1500;
+
+    globeEl.current.pointOfView(
+      {
+        lat: midLat,
+        lng: midLng,
+        altitude: 2.5,
+      },
+      duration
+    );
+  }
 
   async function fetchFlightData() {
     const url = `https://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_iata=${flightNumber}`;
@@ -179,6 +199,8 @@ function App() {
     }
     const flightData = await response.json();
     console.log(flightData);
+    setDepartureAirport(flightData.data[0].departure.iata);
+    setArrivalAirport(flightData.data[0].arrival.iata);
     return flightData;
   }
 
@@ -277,19 +299,19 @@ function App() {
                   </Badge>
                 </div>
               </div>
+              <Button onClick={fetchAirportCoordinates}>click</Button>
             </CardContent>
           </Card>
         </div>
         <div className="absolute z-0">
           <Globe
+            ref={globeEl}
             globeOffset={[300, 0]}
             backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
             hexPolygonsData={globeJson.features}
             hexPolygonColor={() => {
               return "#d1ffbd";
             }}
-            pointsData={myData}
-            pointColor="color"
             arcsData={arcData}
             arcColor="color"
             arcStroke="stroke"
