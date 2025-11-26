@@ -1,6 +1,12 @@
 export default async function handler(req, res) {
-  const apiKey = process.env.AVIATION_STACK_API_KEY; // NOT VITE_
+  const apiKey = process.env.AVIATION_STACK_API_KEY;
   const { flight_iata } = req.query;
+
+  if (!apiKey) {
+    return res
+      .status(500)
+      .json({ error: "Missing API key in environment variables" });
+  }
 
   if (!flight_iata) {
     return res.status(400).json({ error: "Missing flight_iata" });
