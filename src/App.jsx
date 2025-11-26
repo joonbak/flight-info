@@ -25,8 +25,6 @@ import { Button } from "./components/ui/button";
 import { Badge } from "./components/ui/badge";
 import GlobeWrapper from "./components/globe";
 
-const apiKey = import.meta.env.VITE_AVIATION_STACK_API_KEY;
-
 function App() {
   const [input, setInput] = useState("");
   const [flightNumber, setFlightNumber] = useState("");
@@ -85,13 +83,13 @@ function App() {
 
   async function fetchFlightData({ queryKey }) {
     const [, flightNumber] = queryKey;
-    const url = `https://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_iata=${flightNumber}`;
+    const url = `/api/flight?flight_iata=${flightNumber}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Error fetching flight data");
     }
     const flightData = await response.json();
-    console.log(flightData);
+
     await fetchAirportCoordinates(flightData);
     return flightData;
   }
